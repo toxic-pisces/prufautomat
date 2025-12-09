@@ -1,0 +1,32 @@
+{
+  "name": "pr-fautomat",
+  "version": "1.0.0",
+  "description": "Production monitoring with automatic DFQ file processing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build:animation": "node build.js"
+  },
+  "keywords": [
+    "dfq",
+    "production",
+    "monitoring"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "cors": "^2.8.5",
+    "esbuild": "^0.27.1",
+    "express": "^4.18.2",
+    "framer-motion": "^12.23.25",
+    "motion": "^12.23.25",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

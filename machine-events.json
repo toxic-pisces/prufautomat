@@ -1,0 +1,82 @@
+[
+  {
+    "id": "event_1763977855282_vhi2a1tek",
+    "timestamp": "2025-11-24T09:50:55.282Z",
+    "type": "downtime_edit",
+    "reason": "Materialmangel",
+    "startTime": "2025-11-24T09:49:25.661Z",
+    "durationMinutes": 1,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-24T09:50:55.251Z"
+  },
+  {
+    "id": "event_1763977858339_4yj91zlly",
+    "timestamp": "2025-11-24T09:50:58.339Z",
+    "type": "downtime_edit",
+    "reason": "Materialmangel",
+    "startTime": "2025-11-24T09:49:25.661Z",
+    "durationMinutes": 1,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-24T09:50:58.334Z"
+  },
+  {
+    "id": "event_1763977943193_p38ajejw2",
+    "timestamp": "2025-11-24T09:52:23.193Z",
+    "type": "downtime_edit",
+    "reason": "Materialmangel",
+    "startTime": "2025-11-24T09:49:25.661Z",
+    "durationMinutes": 2,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-24T09:52:23.187Z"
+  },
+  {
+    "id": "event_1763977957645_qh8u0rmhn",
+    "timestamp": "2025-11-24T09:52:37.645Z",
+    "type": "downtime_edit",
+    "reason": "Materialmangel",
+    "startTime": "2025-11-24T09:49:25.661Z",
+    "durationMinutes": 3,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-24T09:52:37.639Z"
+  },
+  {
+    "id": "event_1763979417823_ua4vt3btk",
+    "timestamp": "2025-11-24T10:16:57.823Z",
+    "type": "downtime_edit",
+    "reason": "Reparatur",
+    "startTime": "2025-11-24T10:08:03.385Z",
+    "durationMinutes": 4,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-24T10:16:57.789Z"
+  },
+  {
+    "id": "event_1763979564976_k564kc92i",
+    "timestamp": "2025-11-24T10:19:24.976Z",
+    "type": "downtime_edit",
+    "reason": "Reparatur",
+    "startTime": "2025-11-24T10:08:03.385Z",
+    "durationMinutes": 6,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-24T10:19:24.959Z"
+  },
+  {
+    "id": "event_1764158662206_qr74ba3jy",
+    "timestamp": "2025-11-26T12:04:22.207Z",
+    "type": "downtime_edit",
+    "reason": "Aushilfe andere Anlage",
+    "startTime": "2025-11-26T10:34:08.085Z",
+    "durationMinutes": 37,
+    "segmentStatus": -10,
+    "editedAt": "2025-11-26T12:04:22.168Z"
+  },
+  {
+    "id": "event_1764932173762_o7mye87iw",
+    "timestamp": "2025-12-05T10:56:13.762Z",
+    "type": "downtime_edit",
+    "reason": "Werkzeugwechsel",
+    "startTime": "2025-12-05T10:30:39.014Z",
+    "durationMinutes": 25,
+    "segmentStatus": -10,
+    "editedAt": "2025-12-05T10:56:13.727Z"
+  }
+]

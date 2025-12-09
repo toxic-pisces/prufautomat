@@ -1,0 +1,955 @@
+/* ============================================
+   UTILITY CLASSES FOR REACT ANIMATION
+   ============================================ */
+
+/* Tailwind-like utility classes */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.flex { display: flex; }
+.w-full { width: 100%; }
+.max-w-4xl { max-width: 56rem; }
+.h-\[600px\] { height: 600px; }
+.h-1 { height: 0.25rem; }
+.h-12 { height: 3rem; }
+.h-16 { height: 4rem; }
+.h-20 { height: 5rem; }
+.h-24 { height: 6rem; }
+.h-56 { height: 14rem; }
+.h-80 { height: 20rem; }
+.w-8 { width: 2rem; }
+.w-32 { width: 8rem; }
+.w-48 { width: 12rem; }
+.w-64 { width: 16rem; }
+.w-\[2px\] { width: 2px; }
+.w-\[3px\] { width: 3px; }
+.w-\[4px\] { width: 4px; }
+.w-3\/4 { width: 75%; }
+.w-1\/2 { width: 50%; }
+.top-0 { top: 0; }
+.top-1\/2 { top: 50%; }
+.top-3 { top: 0.75rem; }
+.top-4 { top: 1rem; }
+.top-12 { top: 3rem; }
+.top-24 { top: 6rem; }
+.left-0 { left: 0; }
+.left-3 { left: 0.75rem; }
+.left-4 { left: 1rem; }
+.left-8 { left: 2rem; }
+.left-1\/2 { left: 50%; }
+.right-0 { right: 0; }
+.right-3 { right: 0.75rem; }
+.right-4 { right: 1rem; }
+.bottom-2 { bottom: 0.5rem; }
+.bottom-8 { bottom: 2rem; }
+.-bottom-2 { bottom: -0.5rem; }
+.gap-\[2px\] { gap: 2px; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.rounded { border-radius: 0.25rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-b-lg { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+.shadow-red-500\/50 { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+.overflow-hidden { overflow: hidden; }
+.bg-white { background-color: #ffffff; }
+.bg-black { background-color: #000000; }
+.bg-gray-200 { background-color: #e5e7eb; }
+.bg-gray-700 { background-color: #374151; }
+.bg-gray-800 { background-color: #1f2937; }
+.bg-gray-900 { background-color: #111827; }
+.bg-red-500 { background-color: #ef4444; }
+.bg-green-500 { background-color: #10b981; }
+.bg-blue-500 { background-color: #3b82f6; }
+.hover\:bg-blue-600:hover { background-color: #2563eb; }
+.text-white { color: #ffffff; }
+.text-\[8px\] { font-size: 8px; }
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.25rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.border-4 { border-width: 4px; }
+.border-gray-700 { border-color: #374151; }
+.-translate-x-1\/2 { transform: translateX(-50%); }
+.-translate-y-1\/2 { transform: translateY(-50%); }
+.transition-colors { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+
+/* ============================================
+   BARCODE MODAL - LARGE VERSION WITH ANIMATION
+   ============================================ */
+
+/* Make the barcode modal wider to accommodate animation */
+.barcode-modal-large {
+    max-width: 850px !important;
+    width: 92% !important;
+    padding: 25px !important;
+}
+
+/* Consistent modal sizing for all workflow modals */
+.modal-content.workflow-modal {
+    max-width: 500px !important;
+    width: 90% !important;
+    padding: 22px 28px !important;
+}
+
+/* Standardize all h2 headings in workflow modals */
+.modal-content.workflow-modal h2 {
+    font-size: 20px !important;
+    margin-bottom: 12px !important;
+    text-align: center !important;
+    color: #3498db !important;
+}
+
+/* Standardize all paragraphs in workflow modals */
+.modal-content.workflow-modal p {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    margin: 10px 0 !important;
+    text-align: center !important;
+    color: #bdc3c7 !important;
+}
+
+/* Standardize all buttons in workflow modals */
+.modal-content.workflow-modal button.btn-primary {
+    width: 100% !important;
+    font-size: 15px !important;
+    padding: 12px 20px !important;
+    margin-top: 15px !important;
+}
+
+/* Grid layout for modal content */
+.barcode-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: center;
+    height: 380px;
+}
+
+/* Left side input section */
+.barcode-input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    height: 100%;
+}
+
+.barcode-input-section h2 {
+    font-size: 22px !important;
+    margin-bottom: 8px !important;
+    text-align: left !important;
+    color: #3498db !important;
+}
+
+.barcode-input-section p {
+    font-size: 14px !important;
+    text-align: left !important;
+    color: #bdc3c7 !important;
+    margin: 0 0 10px 0 !important;
+}
+
+/* Right side animation section - NO white background */
+.barcode-animation-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background: transparent;
+    border-radius: 10px;
+    min-height: 300px;
+    overflow: hidden;
+}
+
+/* Video styling - transparent background */
+.barcode-video {
+    width: 100%;
+    max-width: 380px;
+    height: auto;
+    border-radius: 10px;
+    background: transparent;
+}
+
+/* ============================================
+   TBK SCAN STYLES
+   ============================================ */
+
+.scan-indicator {
+    text-align: center;
+    padding: 40px;
+    margin: 30px 0;
+    border: 3px dashed #3498db;
+    border-radius: 12px;
+    background: #ecf0f1;
+}
+
+.scan-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.scan-text {
+    font-size: 18px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* TBK Scan Success State - Fills Container */
+#tbkScanSuccess {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    color: white;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#tbkScanSuccess.show {
+    opacity: 1;
+}
+
+#tbkScanSuccess.fade-out {
+    opacity: 0;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scan-success-checkmark {
+    font-size: 96px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    animation: checkmarkPop 0.6s ease-out;
+}
+
+@keyframes checkmarkPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.scan-success-number {
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+}
+
+/* ============================================
+   CONTAINER SCAN STYLES
+   ============================================ */
+
+.container-list {
+    height: 350px;
+    overflow-y: auto;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 0;
+    background: #ecf0f1;
+}
+
+.container-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: white;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    animation: containerSlideIn 0.3s ease-out;
+}
+
+@keyframes containerSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
+   COMPACT CONTAINER LIST STYLES
+   ============================================ */
+
+.container-list-compact {
+    height: 180px;
+    overflow-y: auto;
+    background: #1a252f;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.container-list-compact:empty::before {
+    content: "Noch keine Behälter gescannt...";
+    color: #7f8c8d;
+    font-size: 13px;
+    font-style: italic;
+    display: block;
+    text-align: center;
+    padding: 60px 15px;
+}
+
+.container-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    animation: slideIn 0.3s ease;
+}
+
+.container-item:last-child {
+    margin-bottom: 0;
+}
+
+.container-item-icon {
+    font-size: 16px;
+}
+
+.container-item-number {
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+}
+
+/* Scan Counter */
+.scan-counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    background: #1a252f;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.counter-label {
+    color: #95a5a6;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.counter-value {
+    color: #3498db;
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   MACHINE LOADING MODAL STYLES
+   ============================================ */
+
+.loading-icon {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.checklist {
+    background: #1a252f;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 15px 0;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: #ecf0f1;
+    font-size: 14px;
+}
+
+.checklist-item:not(:last-child) {
+    border-bottom: 1px solid #2c3e50;
+}
+
+.check-icon {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+}
+
+.btn-success:hover {
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.5) !important;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
+   BARCODE SCANNER ANIMATION STYLES
+   ============================================ */
+
+.barcode-animation-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 450px;
+    background: white;
+    border-radius: 12px;
+    overflow: visible; /* Changed from hidden to visible so elements can animate in */
+}
+
+/* Container */
+.anim-container {
+    position: absolute;
+    left: -400px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-10deg);
+}
+
+.anim-container-box {
+    width: 256px;
+    height: 320px;
+    background: #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 4px solid #374151;
+    position: relative;
+}
+
+/* Paper with barcode */
+.anim-paper {
+    position: absolute;
+    top: 48px;
+    left: 32px;
+    width: 192px;
+    height: 224px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Barcode */
+.anim-barcode {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
+.barcode-lines {
+    display: flex;
+    gap: 2px;
+}
+
+.barcode-number {
+    font-size: 8px;
+    margin-top: 4px;
+    text-align: center;
+    color: #000;
+}
+
+/* Paper lines */
+.paper-lines {
+    position: absolute;
+    top: 96px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.paper-line {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+}
+
+/* Barcode Scanner */
+.anim-scanner {
+    position: absolute;
+    opacity: 0;
+    transform: translateX(800px) translateY(150px) scale(0.8) rotate(15deg);
+}
+
+.scanner-bounce {
+    position: relative;
+}
+
+.scanner-body {
+    width: 128px;
+    height: 96px;
+    background: #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Scanner window */
+.scanner-window {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    height: 64px;
+    background: #111827;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Scanning laser line */
+.scanner-laser {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #ef4444;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+/* Success light - green blink */
+.scanner-success {
+    position: absolute;
+    inset: 0;
+    background: #10b981;
+    opacity: 0;
+}
+
+/* Scanner grip */
+.scanner-grip {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 80px;
+    background: #374151;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Restart button */
+.restart-btn {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.restart-btn:hover {
+    background: #2563eb;
+    transform: translateX(-50%) scale(1.05);
+}
+
+.restart-btn:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Container slides in from left */
+@keyframes slideInContainer {
+    0% {
+        transform: translateX(-400px) translateY(-50%) rotate(-10deg);
+    }
+    100% {
+        transform: translateX(150px) translateY(-50%) rotate(0deg);
+    }
+}
+
+/* Paper slides out to the right */
+@keyframes slideOutPaper {
+    0% {
+        transform: translateX(0) rotate(0deg);
+    }
+    30% {
+        transform: translateX(50px) rotate(-3deg);
+    }
+    60% {
+        transform: translateX(300px) rotate(2deg);
+    }
+    100% {
+        transform: translateX(350px) rotate(0deg);
+    }
+}
+
+/* Scanner slides in from right */
+@keyframes slideInScanner {
+    0% {
+        opacity: 0;
+        transform: translateX(800px) translateY(150px) scale(0.8) rotate(15deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(525px) translateY(165px) scale(1) rotate(0deg);
+    }
+}
+
+/* Scanner bounces */
+@keyframes scannerBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* Laser scans */
+@keyframes scanLaser {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(60px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* Success blinks */
+@keyframes successBlink {
+    0%, 50%, 60%, 65%, 70%, 75%, 80%, 85%, 90%, 100% {
+        opacity: 0;
+    }
+    70%, 80%, 90% {
+        opacity: 0.8;
+    }
+}
+
+/* Restart button fades in */
+@keyframes fadeInButton {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* ============================================
+   TBK SCAN MODAL - CENTERED VIDEO
+   ============================================ */
+
+.tbk-scan-modal {
+    max-width: 800px !important;
+    width: 92% !important;
+    padding: 40px !important;
+    text-align: center;
+}
+
+.scan-modal-title {
+    font-size: 32px !important;
+    color: #3498db !important;
+    margin-bottom: 30px !important;
+    text-align: center !important;
+}
+
+/* Verstecktes Input für Scanner */
+.hidden-scanner-input {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.video-container-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.scan-video-large {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    border-radius: 12px;
+    background: transparent;
+}
+
+.scan-success-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(44, 62, 80, 0.95);
+    border-radius: 12px;
+    z-index: 10;
+}
+
+.success-checkmark {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.success-message {
+    font-size: 24px;
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+/* ============================================
+   BEHÄLTER SCAN MODAL - TWO COLUMN LAYOUT
+   ============================================ */
+
+.container-scan-modal {
+    max-width: 1000px !important;
+    width: 94% !important;
+    padding: 40px !important;
+}
+
+.container-scan-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: stretch;
+    min-height: 500px;
+}
+
+.container-left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+}
+
+.container-section-title {
+    font-size: 22px !important;
+    color: #3498db !important;
+    margin: 0 0 10px 0 !important;
+    text-align: left !important;
+}
+
+.container-list-area {
+    flex: 1;
+    background: #1a1a2e;
+    border-radius: 10px;
+    padding: 15px;
+    overflow-y: auto;
+    min-height: 280px;
+}
+
+.container-counter-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #252540;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.container-counter-area .counter-label {
+    color: #bdc3c7;
+}
+
+.container-counter-area .counter-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3498db;
+}
+
+.container-submit-btn {
+    width: 100%;
+    padding: 15px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.container-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2980b9, #1a5276);
+    transform: translateY(-2px);
+}
+
+.container-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.container-video-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container-scan-video {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    background: transparent;
+}
+
+/* ============================================
+   MASCHINE BELADEN MODAL - LARGE VIDEO + BUTTON
+   ============================================ */
+
+.machine-loading-modal {
+    max-width: 850px !important;
+    width: 92% !important;
+    padding: 45px !important;
+    text-align: center;
+}
+
+.machine-loading-title {
+    font-size: 32px !important;
+    color: #3498db !important;
+    margin-bottom: 30px !important;
+    text-align: center !important;
+}
+
+.machine-video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.machine-loading-video {
+    width: 100%;
+    max-width: 650px;
+    height: auto;
+    border-radius: 12px;
+    background: transparent;
+}
+
+.machine-confirm-btn {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+    display: block;
+}
+
+.machine-confirm-btn:hover {
+    background: linear-gradient(135deg, #1e8449, #196f3d);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .barcode-modal-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .barcode-animation-section {
+        display: none; /* Hide animation on smaller screens */
+    }
+
+    .barcode-modal-large {
+        max-width: 600px !important;
+    }
+
+    .container-scan-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .container-video-panel {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .barcode-input-section {
+        padding: 10px;
+    }
+
+    .barcode-modal-large {
+        width: 100% !important;
+        margin: 20px;
+    }
+    
+    .tbk-scan-modal,
+    .container-scan-modal,
+    .machine-loading-modal {
+        width: 95% !important;
+        padding: 20px !important;
+    }
+}

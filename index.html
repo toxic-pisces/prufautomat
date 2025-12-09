@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maschine 03 - Produktionsmonitor</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/barcodeAnimation.css">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Maschine 03">
+    <link rel="apple-touch-icon" href="css/output-onlinepngtools.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#2c3e50">
+
+    <!-- Socket.IO for real-time folder watching -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+
+    <!-- Translations -->
+    <script src="js/translations.js"></script>
+</head>
+<body>
+    <!-- LOGIN SCREEN (wird angezeigt wenn nicht angemeldet) -->
+    <div id="loginScreen" class="login-screen" style="display: none;">
+        <!-- Logo zentriert -->
+        <div class="login-logo-section">
+            <img src="css/output-onlinepngtools.png" alt="Logo" class="login-logo-full">
+        </div>
+        
+        <!-- Timeline unten (kopiert von Main App) -->
+        <div class="timeline-section login-timeline">
+            <div class="timeline-wrapper">
+                <div class="timeline" id="loginTimeline"></div>
+                <div class="timeline-axis" id="loginTimelineAxis"></div>
+            </div>
+        </div>
+        
+        <!-- Hidden input für Karten-Scanner -->
+        <input type="text" id="cardScanInput" class="hidden-scanner-input" autocomplete="off" autofocus>
+        
+        <!-- SOFORT Timeline rendern für Login Screen -->
+        <script>
+        (function() {
+            function renderLoginTimeline() {
+                const loginTimeline = document.getElementById('loginTimeline');
+                const loginTimelineAxis = document.getElementById('loginTimelineAxis');
+                
+                if (!loginTimeline || !loginTimelineAxis) return;
+                
+                const now = new Date();
+                
+                // Demo-Daten - NUR grün (working) und orange (malfunction), KEIN grau!
+                const demoSegments = [
+                    { class: 'working', duration: 50, reason: null },
+                    { class: 'malfunction', duration: 15, reason: 'Pause' },
+                    { class: 'working', duration: 70, reason: null },
+                    { class: 'malfunction', duration: 10, reason: 'Materialwechsel' },
+                    { class: 'working', duration: 70, reason: null },
+                    { class: 'malfunction', duration: 25, reason: null }  // LETZTES - blinkt!
+                ];
+                
+                loginTimeline.innerHTML = '';
+                demoSegments.forEach((seg) => {
+                    const div = document.createElement('div');
+                    div.className = 'timeline-segment ' + seg.class;
+                    div.style.flex = seg.duration;
+                    
+                    // Blinken wenn Stillstand OHNE Grund
+                    if (seg.class === 'malfunction' && !seg.reason) {
+                        div.classList.add('needs-reason');
+                        const icon = document.createElement('span');
+                        icon.className = 'segment-warning-icon';
+                        icon.textContent = '⚠️';
+                        div.appendChild(icon);
+                    }
+                    
+                    loginTimeline.appendChild(div);
+                });
+                
+                loginTimelineAxis.innerHTML = '';
+                for (let i = 0; i <= 4; i++) {
+                    const marker = document.createElement('div');
+                    marker.className = 'time-marker';
+                    const timeAtMarker = new Date(now.getTime() - (4 - i) * 60 * 60 * 1000);
+                    marker.textContent = timeAtMarker.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    loginTimelineAxis.appendChild(marker);
+                }
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', renderLoginTimeline);
+            } else {
+                renderLoginTimeline();
+            }
+        })();
+        </script>
+    </div>
+
+    <!-- MAIN APP (wird angezeigt wenn angemeldet) -->
+    <div id="mainApp" class="main-app" style="display: flex;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile-section" id="profileSection">
+                <div class="profile-picture">
+                    <img src="css/worker-profile.png" alt="Worker Profile" id="profileImg">
+                </div>
+                <div class="worker-number" id="workerNumber">007</div>
+            </div>
+
+            <!-- Analysis Dashboard Button -->
+            <button class="analysis-btn" id="analysisBtn" title="Analysis Dashboard">
+                <span class="analysis-icon">📊</span>
+            </button>
+
+            <!-- Configuration Button -->
+            <button class="config-btn" id="configBtn" title="Configuration">
+                <span class="config-icon">⚙️</span>
+            </button>
+
+            <!-- Aufträge Button -->
+            <button class="auftraege-btn" id="auftraegeBtn" title="Aufträge">
+                <span class="auftraege-icon">📋</span>
+            </button>
+
+            <!-- Language Button (NEU) -->
+            <button class="lang-btn" id="langBtn" title="Sprache wechseln">
+                <span id="langFlag">🇩🇪</span>
+            </button>
+        </div>
+
+    <!-- Main Production View -->
+    <div class="production-view">
+        <!-- Header -->
+        <div class="header">
+            <div class="machine-id">MASCHINE 03</div>
+            <img src="css/output-onlinepngtools.png" alt="Logo" class="logo">
+        </div>
+
+        <!-- Production Panel - Conditional Display -->
+        <div class="production-panel">
+            <!-- Show when NO TEST is running -->
+            <div id="noTestView" class="no-test-view">
+                <button class="btn-start-test" id="startTestButton">
+                    <span class="start-icon">▶️</span>
+                    Prüfung starten
+                </button>
+            </div>
+
+            <!-- Show when TEST IS RUNNING -->
+            <div id="activeTestView" class="active-test-view" style="display: none;">
+                <h3 class="session-header" id="sessionHeader">Aktuelle Prüfung</h3>
+                <div class="production-stats">
+                    <div class="stat-card total">
+                        <div class="stat-value" id="totalParts">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card good">
+                        <div class="stat-value" id="ioParts">0</div>
+                        <div class="stat-label">IO</div>
+                    </div>
+                    <div class="stat-card bad">
+                        <div class="stat-value" id="nioParts">0</div>
+                        <div class="stat-label">NIO</div>
+                    </div>
+                </div>
+                <div class="session-info-inline">
+                    <div class="info-item">
+                        <span class="label">TBK:</span>
+                        <span class="value" id="currentTBK">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Teil:</span>
+                        <span class="value" id="currentTeil">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Zyklus:</span>
+                        <span class="value" id="currentPruefzyklus">-</span>
+                    </div>
+                </div>
+
+                <!-- Machine Timeout Timer -->
+                <div class="timeout-timer" id="timeoutTimer" style="display: none;">
+                    <div class="timer-label">Zeit bis Fehler:</div>
+                    <div class="timer-value" id="timerValue">--:--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="timeline-section">
+            <!-- Error Warning Banner (hidden by default) -->
+            <div id="errorWarningBanner" class="error-warning-banner" style="display: none;">
+                <div class="warning-content">
+                    <span class="warning-icon">⚠️</span>
+                    <div class="warning-text">
+                        <strong>WARNUNG:</strong>
+                        <span id="warningMessage"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-wrapper">
+                <div class="timeline" id="timeline"></div>
+                <div class="timeline-axis" id="timelineAxis"></div>
+            </div>
+            
+            <!-- SOFORT Timeline rendern für Main App -->
+            <script>
+            (function() {
+                // Globale Demo-Daten für Main App
+                window.demoTimelineSegments = [
+                    { class: 'working', duration: 50, reason: null },
+                    { class: 'malfunction', duration: 15, reason: 'Pause' },
+                    { class: 'working', duration: 70, reason: null },
+                    { class: 'malfunction', duration: 10, reason: 'Materialwechsel' },
+                    { class: 'working', duration: 70, reason: null },
+                    { class: 'malfunction', duration: 25, reason: null }  // LETZTES SEGMENT - blinkt!
+                ];
+                
+                // Flag um zu verhindern dass app.js die Demo-Timeline überschreibt
+                window.useDemoTimeline = true;
+                
+                window.renderMainTimelineDemo = function() {
+                    const timeline = document.getElementById('timeline');
+                    const timelineAxis = document.getElementById('timelineAxis');
+                    
+                    if (!timeline || !timelineAxis) return;
+                    
+                    const now = new Date();
+                    const segments = window.demoTimelineSegments;
+                    
+                    timeline.innerHTML = '';
+                    segments.forEach((seg, idx) => {
+                        const div = document.createElement('div');
+                        div.className = 'timeline-segment ' + seg.class;
+                        div.style.flex = seg.duration;
+                        div.style.cursor = 'pointer';
+                        
+                        // Tooltip
+                        if (seg.class === 'malfunction') {
+                            div.title = seg.reason ? `Stillstand: ${seg.reason} (${seg.duration} min)` : `Stillstand: ${seg.duration} min - Klicken für Grund`;
+                        } else {
+                            div.title = `Prüfung: ${seg.duration} min`;
+                        }
+                        
+                        // Blinken nur wenn KEIN Grund und es ein Stillstand ist
+                        if (seg.class === 'malfunction' && !seg.reason) {
+                            div.classList.add('needs-reason');
+                            const icon = document.createElement('span');
+                            icon.className = 'segment-warning-icon';
+                            icon.textContent = '⚠️';
+                            div.appendChild(icon);
+                        }
+                        
+                        // Click Handler für Segmente
+                        div.addEventListener('click', () => {
+                            window.showDemoSegmentModal(idx, seg);
+                        });
+                        
+                        timeline.appendChild(div);
+                    });
+                    
+                    timelineAxis.innerHTML = '';
+                    for (let i = 0; i <= 4; i++) {
+                        const marker = document.createElement('div');
+                        marker.className = 'time-marker';
+                        const timeAtMarker = new Date(now.getTime() - (4 - i) * 60 * 60 * 1000);
+                        marker.textContent = timeAtMarker.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        timelineAxis.appendChild(marker);
+                    }
+                };
+                
+                // Modal für Segment-Bearbeitung
+                window.showDemoSegmentModal = function(idx, seg) {
+                    if (seg.class === 'malfunction') {
+                        // Stillstand-Modal zeigen
+                        const modal = document.getElementById('downtimeModal');
+                        if (modal) {
+                            // Speichere Index für später
+                            modal.dataset.segmentIndex = idx;
+                            modal.classList.add('active');
+                        }
+                    } else if (seg.class === 'working') {
+                        // Prüfungs-Info - zeige einfach Alert für Demo
+                        alert('Prüfungssegment: ' + seg.duration + ' Minuten');
+                    }
+                };
+                
+                // Initial rendern
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', window.renderMainTimelineDemo);
+                } else {
+                    window.renderMainTimelineDemo();
+                }
+            })();
+            </script>
+        </div>
+
+    </div>
+
+    <!-- Barcode Scan Modal -->
+    <div id="barcodeModal" class="modal">
+        <div class="modal-content tbk-scan-modal">
+            <h2 class="scan-modal-title">TBK scannen</h2>
+            <!-- Verstecktes Input-Feld für Barcode-Scanner -->
+            <input type="text" id="barcodeInput" class="hidden-scanner-input" autocomplete="off" autofocus>
+            <div class="video-container-centered">
+                <video
+                    id="barcodeAnimationVideo"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    class="scan-video-large">
+                    <source src="videos/barcode-animation.mp4" type="video/mp4">
+                    <source src="videos/barcode-animation.webm" type="video/webm">
+                </video>
+            </div>
+            <div id="tbkScanSuccess" class="scan-success-overlay" style="display: none;">
+                <div class="success-checkmark">✓</div>
+                <div class="success-message" id="scannedTBKNumber"></div>
+            </div>
+            <div id="barcodeError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Prüfzyklus + Prüfzweck Selection Modal -->
+    <div id="pruefzyklusModal" class="modal">
+        <div class="modal-content workflow-modal">
+            <h2>Prüfzyklus auswählen</h2>
+            <div class="pruefzyklus-buttons">
+                <button class="btn-pruefzyklus" data-zyklus="1">1</button>
+                <button class="btn-pruefzyklus" data-zyklus="2">2</button>
+                <button class="btn-pruefzyklus" data-zyklus="3">3</button>
+            </div>
+
+            <h2 style="margin-top: 40px;">Prüfzweck auswählen</h2>
+            <div class="pruefzweck-buttons">
+                <button class="btn-pruefzweck" data-zweck="Serienprüfung">Serienprüfung</button>
+                <button class="btn-pruefzweck" data-zweck="Sonderprüfung">Sonderprüfung</button>
+                <button class="btn-pruefzweck" data-zweck="Testprüfung">Testprüfung</button>
+            </div>
+
+            <button id="confirmPruefzyklusZweck" class="btn-primary" disabled>Bestätigen</button>
+        </div>
+    </div>
+
+    <!-- Aufträge Modal -->
+    <div id="auftraegeModal" class="modal">
+        <div class="modal-content auftraege-modal">
+            <div class="modal-header">
+                <h2>Aufträge</h2>
+                <button class="close-btn" id="closeAuftraegeModal">&times;</button>
+            </div>
+            <div class="auftraege-content">
+                <!-- Selected Order Display -->
+                <div class="selected-order-display">
+                    <div class="selected-order-label">Aktueller Auftrag:</div>
+                    <div class="selected-order-number" id="selectedOrderDisplay">
+                        Kein Auftrag ausgewählt
+                    </div>
+                </div>
+
+                <!-- Orders Grid -->
+                <div class="orders-grid" id="ordersGrid">
+                    <!-- Order cards will be dynamically populated -->
+                </div>
+
+                <!-- Request New Orders Button -->
+                <button class="btn-primary" id="requestNewOrdersBtn">
+                    Neue Aufträge anfordern
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profil Modal (NEU) -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h2>👤 Prüferprofil</h2>
+                <button class="close-btn" id="closeProfileModal">&times;</button>
+            </div>
+            <div class="profile-modal-content">
+                <div class="profile-modal-picture">
+                    <img src="css/worker-profile.png" alt="Prüfer" id="profileModalImg">
+                </div>
+                <div class="profile-modal-info">
+                    <div class="profile-info-item">
+                        <span class="profile-label">Prüfernummer</span>
+                        <span class="profile-value" id="profileModalNumber">007</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-label">Name</span>
+                        <span class="profile-value" id="profileModalName">Max Mustermann</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <span class="profile-label">Angemeldet seit</span>
+                        <span class="profile-value" id="profileModalTime">--:--</span>
+                    </div>
+                </div>
+                <button class="btn-logout" id="logoutBtn">
+                    <span>🚪</span> Abmelden
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Selection Modal (NEU) -->
+    <div id="langModal" class="modal">
+        <div class="modal-content language-modal">
+            <div class="modal-header">
+                <h2>Sprachauswahl</h2>
+                <button class="close-btn" id="closeLangModal">&times;</button>
+            </div>
+            <div class="language-content">
+                <div class="language-grid">
+                    <button class="lang-card" data-lang="de">
+                        <span class="lang-flag">🇩🇪</span>
+                        <span class="lang-name">Deutsch</span>
+                    </button>
+                    <button class="lang-card" data-lang="en">
+                        <span class="lang-flag">🇬🇧</span>
+                        <span class="lang-name">English</span>
+                    </button>
+                    <button class="lang-card" data-lang="ru">
+                        <span class="lang-flag">🇷🇺</span>
+                        <span class="lang-name">Русский</span>
+                    </button>
+                    <button class="lang-card" data-lang="pl">
+                        <span class="lang-flag">🇵🇱</span>
+                        <span class="lang-name">Polski</span>
+                    </button>
+                    <button class="lang-card" data-lang="zh">
+                        <span class="lang-flag">🇨🇳</span>
+                        <span class="lang-name">中文</span>
+                    </button>
+                    <button class="lang-card" data-lang="it">
+                        <span class="lang-flag">🇮🇹</span>
+                        <span class="lang-name">Italiano</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Behälter Scan Modal -->
+    <div id="containerScanModal" class="modal">
+        <div class="modal-content container-scan-modal">
+            <div class="container-scan-layout">
+                <!-- Left side: Container List, Counter, Button -->
+                <div class="container-left-panel">
+                    <h2 class="container-section-title">Behälter scannen</h2>
+                    <div class="container-list-area" id="containerList">
+                        <!-- Scanned containers will appear here -->
+                    </div>
+                    <div class="container-counter-area">
+                        <span class="counter-label">Gescannt:</span>
+                        <span class="counter-value" id="containerCount">0</span>
+                    </div>
+                    <button id="submitContainerScan" class="container-submit-btn" disabled>Weiter</button>
+                    <div id="containerError" class="error-message"></div>
+                </div>
+
+                <!-- Right side: Video -->
+                <div class="container-video-panel">
+                    <video
+                        id="containerAnimationVideo"
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        class="container-scan-video">
+                        <source src="videos/container-scan-animation.mp4" type="video/mp4">
+                        <source src="videos/container-scan-animation.webm" type="video/webm">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TBK Drucken Modal -->
+    <div id="tbkPrintModal" class="modal">
+        <div class="modal-content workflow-modal">
+            <h2>Neue TBK drucken</h2>
+            <div class="tbk-print-info">
+                <div class="info-row">
+                    <span class="info-label">Laufkarten-Nummer:</span>
+                    <span id="printLaufkartenNr" class="info-value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Chargennummer:</span>
+                    <span id="printChargennummer" class="info-value"></span>
+                </div>
+            </div>
+
+            <div class="tbk-print-controls">
+                <div class="print-count-label">Anzahl TBKs:</div>
+                <div class="print-count-controls">
+                    <button class="btn-count" id="decrementTBK">-1</button>
+                    <span class="print-count-value" id="printCountValue">1</span>
+                    <button class="btn-count" id="incrementTBK">+1</button>
+                </div>
+                <div class="print-count-limit">
+                    Max: <span id="maxTBKCount">0</span> (Behälter-Anzahl)
+                </div>
+            </div>
+
+            <button id="printTBKsBtn" class="btn-primary">TBKs drucken</button>
+        </div>
+    </div>
+
+    <!-- Maschine Beladen Modal -->
+    <div id="machineLoadingModal" class="modal">
+        <div class="modal-content machine-loading-modal">
+            <h2 class="machine-loading-title">Maschine beladen</h2>
+            <div class="machine-video-container">
+                <video
+                    id="loadingAnimationVideo"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    class="machine-loading-video">
+                    <source src="videos/machine-loading-animation.mp4" type="video/mp4">
+                    <source src="videos/machine-loading-animation.webm" type="video/webm">
+                </video>
+            </div>
+            <button id="confirmMachineLoaded" class="machine-confirm-btn">Maschine beladen - Bestätigen</button>
+        </div>
+    </div>
+
+    <!-- Final Summary & Start Modal -->
+    <div id="finalSummaryModal" class="modal">
+        <div class="modal-content workflow-modal">
+            <h2>Prüfung starten - Zusammenfassung</h2>
+
+            <div class="summary-section">
+                <h3>TBK Information</h3>
+                <div class="tbk-info">
+                    <div class="info-row">
+                        <span class="info-label">TBK Number:</span>
+                        <span id="summaryTBK" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Teil:</span>
+                        <span id="summaryTeil" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Laufkarte:</span>
+                        <span id="summaryLaufkarte" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Charge:</span>
+                        <span id="summaryCharge" class="info-value"></span>
+                    </div>
+                </div>
+
+                <h3>Prüfkonfiguration</h3>
+                <div class="tbk-info">
+                    <div class="info-row">
+                        <span class="info-label">Prüfzyklus:</span>
+                        <span id="summaryPruefzyklus" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Prüfzweck:</span>
+                        <span id="summaryPruefzweck" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Anzahl Behälter:</span>
+                        <span id="summaryBehälter" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gedruckte TBKs:</span>
+                        <span id="summaryTBKCount" class="info-value"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="startTestFromSummary" class="btn-primary btn-large" style="margin-top: 30px; padding: 20px 40px; font-size: 20px; font-weight: bold;">
+                PRÜFUNG BEREIT
+            </button>
+        </div>
+    </div>
+
+    <!-- Downtime Reason Modal -->
+    <div id="downtimeModal" class="modal">
+        <div class="modal-content large">
+            <h2>Maschinenstillstand</h2>
+            <p>Bitte wählen Sie den Grund für den Maschinenstillstand:</p>
+            <div class="downtime-grid">
+                <button class="btn-downtime" data-reason="Kalibrierung fehlgeschlagen">
+                    <span class="reason-icon">🔧</span>
+                    <span class="reason-text">Kalibrierung fehlgeschlagen</span>
+                </button>
+                <button class="btn-downtime" data-reason="NIO voll">
+                    <span class="reason-icon">📦</span>
+                    <span class="reason-text">NIO voll</span>
+                </button>
+                <button class="btn-downtime" data-reason="Teile Zuführung">
+                    <span class="reason-icon">⬇️</span>
+                    <span class="reason-text">Teile Zuführung</span>
+                </button>
+                <button class="btn-downtime" data-reason="Reparatur">
+                    <span class="reason-icon">🔨</span>
+                    <span class="reason-text">Reparatur</span>
+                </button>
+                <button class="btn-downtime" data-reason="Rabbit Prüfung">
+                    <span class="reason-icon">🐰</span>
+                    <span class="reason-text">Rabbit Prüfung</span>
+                </button>
+                <button class="btn-downtime" data-reason="Keine Rohlinge">
+                    <span class="reason-icon">❌</span>
+                    <span class="reason-text">Keine Rohlinge</span>
+                </button>
+                <button class="btn-downtime" data-reason="Teile Abführung">
+                    <span class="reason-icon">⬆️</span>
+                    <span class="reason-text">Teile Abführung</span>
+                </button>
+                <button class="btn-downtime" data-reason="Dokumentation">
+                    <span class="reason-icon">📄</span>
+                    <span class="reason-text">Dokumentation</span>
+                </button>
+                <button class="btn-downtime" data-reason="Monteur Einsatz">
+                    <span class="reason-icon">👷</span>
+                    <span class="reason-text">Monteur Einsatz</span>
+                </button>
+                <button class="btn-downtime" data-reason="Ablauffehler">
+                    <span class="reason-icon">⚠️</span>
+                    <span class="reason-text">Ablauffehler</span>
+                </button>
+                <button class="btn-downtime" data-reason="Aushilfe andere Anlage">
+                    <span class="reason-icon">🔄</span>
+                    <span class="reason-text">Aushilfe andere Anlage</span>
+                </button>
+                <button class="btn-downtime" data-reason="Sonstiges" id="sonstigesBtn">
+                    <span class="reason-icon">📝</span>
+                    <span class="reason-text">Sonstiges</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Downtime Reason Modal -->
+    <div id="customReasonModal" class="modal">
+        <div class="modal-content">
+            <h2>Sonstiges - Grund eingeben</h2>
+            <p>Bitte geben Sie den Grund für die Stillstandszeit ein:</p>
+            <div class="input-group">
+                <input type="text" id="customReasonInput" placeholder="Grund eingeben..." autofocus>
+                <button id="submitCustomReason" class="btn-primary">Bestätigen</button>
+            </div>
+            <button id="cancelCustomReason" class="btn-secondary">Abbrechen</button>
+        </div>
+    </div>
+
+    <!-- Session Details Modal -->
+    <div id="sessionDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Prüfung Details</h2>
+                <button class="close-btn" id="closeSessionModal">&times;</button>
+            </div>
+            <div class="session-details-content">
+                <div class="tbk-info">
+                    <div class="info-row">
+                        <span class="info-label">TBK Number:</span>
+                        <span id="detailTBK" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Teil:</span>
+                        <span id="detailTeil" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Laufkarte:</span>
+                        <span id="detailLaufkarte" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Charge:</span>
+                        <span id="detailCharge" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Prüfzyklus:</span>
+                        <span id="detailPruefzyklus" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Start Zeit:</span>
+                        <span id="detailStartTime" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ende Zeit:</span>
+                        <span id="detailEndTime" class="info-value"></span>
+                    </div>
+                </div>
+                <div class="production-summary">
+                    <h3>Produktionszusammenfassung</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-label">Total</div>
+                            <div class="summary-value" id="detailTotalParts">0</div>
+                        </div>
+                        <div class="summary-item good">
+                            <div class="summary-label">IO (Gut)</div>
+                            <div class="summary-value" id="detailIOParts">0</div>
+                            <div class="summary-percent" id="detailIOPercent">0%</div>
+                        </div>
+                        <div class="summary-item bad">
+                            <div class="summary-label">NIO (Schlecht)</div>
+                            <div class="summary-value" id="detailNIOParts">0</div>
+                            <div class="summary-percent" id="detailNIOPercent">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Dashboard Modal -->
+    <div id="analysisModal" class="modal">
+        <div class="modal-content analysis-modal">
+            <div class="modal-header">
+                <h2>Analysis Dashboard</h2>
+                <button class="close-btn" id="closeAnalysisModal">&times;</button>
+            </div>
+            <div class="analysis-image-container">
+                <img src="css/analysis-dashboard.png" alt="Analysis Dashboard" class="analysis-image">
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Timeline Segment Modal -->
+    <div id="editSegmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="editSegmentTitle">Edit Segment</h2>
+                <button class="close-btn" id="closeEditSegmentModal">&times;</button>
+            </div>
+            <div id="editSegmentContent">
+                <!-- Content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="configModal" class="modal">
+        <div class="modal-content config-modal">
+            <div class="modal-header">
+                <h2>Konfiguration</h2>
+                <button class="close-btn" id="closeConfigModal">&times;</button>
+            </div>
+            <div class="config-content">
+                <!-- Automatic Folder Watching Section -->
+                <div class="config-section">
+                    <h3>🤖 Automatische Ordnerüberwachung</h3>
+                    <p class="info-text">Server überwacht einen Ordner und verarbeitet neue DFQ-Dateien automatisch</p>
+
+                    <div id="serverStatus" class="server-status">
+                        <div class="status-indicator offline" id="statusIndicator"></div>
+                        <span id="statusText">Verbindung wird hergestellt...</span>
+                    </div>
+
+                    <div id="folderWatchConfig" style="display: none;">
+                        <div class="folder-watch-controls">
+                            <input type="text" id="watchFolderPath" placeholder="z.B. C:\DFQ-Files oder /home/user/dfq-files" class="folder-input">
+                            <button id="setWatchFolderBtn" class="btn-primary">Ordner überwachen</button>
+                        </div>
+
+                        <div id="watchFolderStatus" class="watch-status" style="display: none;">
+                            <span class="status-label">Überwachter Ordner:</span>
+                            <span id="currentWatchFolder" class="status-value"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Machine Timeout Configuration -->
+                <div class="config-section">
+                    <h3>⏱️ Maschinen-Timeout</h3>
+                    <p class="info-text">Zeit bis Fehlermeldung bei fehlenden DFQ-Dateien</p>
+
+                    <div class="timeout-control">
+                        <label for="machineTimeout">Timeout (Minuten):</label>
+                        <input type="number" id="machineTimeout" min="1" max="60" value="5">
+                        <span>Minuten</span>
+                    </div>
+
+                    <div class="timer-toggle">
+                        <label for="showTimerToggle">
+                            <input type="checkbox" id="showTimerToggle" checked>
+                            Timer anzeigen
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Messmerkmale Section -->
+                <div class="config-section">
+                    <h3>Messmerkmale & Fehlergrenzwerte</h3>
+
+                    <!-- Error Check Threshold Configuration -->
+                    <div class="error-check-control">
+                        <label for="errorCheckThreshold">Fehlerprüfung ab:</label>
+                        <input type="number" id="errorCheckThreshold" min="1" max="1000" value="100">
+                        <span>geprüften Teilen</span>
+                    </div>
+
+                    <!-- Dynamic Merkmale Container -->
+                    <div id="merkmaleContainer">
+                        <div class="merkmal-config">
+                            <p class="info-text">Bitte laden Sie eine DFQ-Datei hoch, um Merkmale anzuzeigen.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <button id="saveConfigBtn" class="btn-primary">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Alert Modal -->
+    <div id="errorAlertModal" class="modal error-modal">
+        <div class="modal-content error-alert-content">
+            <div class="error-alert-header">
+                <span class="error-icon">⚠️</span>
+                <h2>FEHLERGRENZE ÜBERSCHRITTEN!</h2>
+            </div>
+            <div class="error-alert-body">
+                <p id="errorAlertMessage"></p>
+                <div class="error-stats">
+                    <div class="error-stat-item">
+                        <span class="stat-label">Merkmal:</span>
+                        <span class="stat-value" id="errorMerkmal"></span>
+                    </div>
+                    <div class="error-stat-item">
+                        <span class="stat-label">Fehlerrate:</span>
+                        <span class="stat-value error-rate" id="errorRate"></span>
+                    </div>
+                    <div class="error-stat-item">
+                        <span class="stat-label">Grenzwert:</span>
+                        <span class="stat-value" id="errorThreshold"></span>
+                    </div>
+                </div>
+                <button id="acknowledgeErrorBtn" class="btn-primary">Bestätigen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NIO Breakdown Modal -->
+    <div id="nioBreakdownModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>NIO Teile - Detaillierte Übersicht</h2>
+                <button class="close-btn" id="closeNioBreakdownModal">&times;</button>
+            </div>
+            <div class="nio-breakdown-content">
+                <div class="nio-summary">
+                    <div class="summary-item">
+                        <span class="label">Gesamt Teile:</span>
+                        <span class="value" id="nioTotalParts">0</span>
+                    </div>
+                    <div class="summary-item good">
+                        <span class="label">IO Teile:</span>
+                        <span class="value" id="nioIOParts">0</span>
+                    </div>
+                    <div class="summary-item bad">
+                        <span class="label">NIO Teile:</span>
+                        <span class="value" id="nioNIOParts">0</span>
+                    </div>
+                </div>
+                <h3>Fehlerverteilung nach Merkmal</h3>
+                <div class="merkmal-breakdown" id="merkmalBreakdown">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan Workflow Script -->
+    <script src="js/scanWorkflow.js"></script>
+
+    <script type="module" src="js/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+
+    <!-- Neues Sprachsystem (eigenständig) -->
+    <script>
+    (function() {
+        // Flaggen für jede Sprache
+        const flags = {
+            de: '🇩🇪',
+            en: '🇬🇧',
+            ru: '🇷🇺',
+            pl: '🇵🇱',
+            zh: '🇨🇳',
+            it: '🇮🇹'
+        };
+
+        // Elemente
+        const langBtn = document.getElementById('langBtn');
+        const langModal = document.getElementById('langModal');
+        const langFlag = document.getElementById('langFlag');
+        const closeLangModal = document.getElementById('closeLangModal');
+        const langCards = document.querySelectorAll('.lang-card');
+
+        // Aktuelle Sprache aus localStorage oder default
+        let currentLang = localStorage.getItem('selectedLanguage') || 'de';
+        
+        // Flagge beim Start setzen
+        if (langFlag) {
+            langFlag.textContent = flags[currentLang] || '🇩🇪';
+        }
+
+        // Modal öffnen
+        if (langBtn) {
+            langBtn.addEventListener('click', function() {
+                console.log('🌐 Sprachbutton geklickt!');
+                langModal.classList.add('active');
+                updateSelectedCard();
+            });
+        }
+
+        // Modal schließen
+        if (closeLangModal) {
+            closeLangModal.addEventListener('click', function() {
+                langModal.classList.remove('active');
+            });
+        }
+
+        // Klick außerhalb schließt Modal
+        if (langModal) {
+            langModal.addEventListener('click', function(e) {
+                if (e.target === langModal) {
+                    langModal.classList.remove('active');
+                }
+            });
+        }
+
+        // Sprache auswählen
+        langCards.forEach(function(card) {
+            card.addEventListener('click', function() {
+                const lang = card.getAttribute('data-lang');
+                currentLang = lang;
+                localStorage.setItem('selectedLanguage', lang);
+                
+                // Erst alle Karten deselektieren
+                langCards.forEach(c => c.classList.remove('selected'));
+                // Dann diese Karte selektieren
+                card.classList.add('selected');
+                
+                // Flagge aktualisieren
+                if (langFlag) {
+                    langFlag.textContent = flags[lang] || '🇩🇪';
+                }
+
+                // Übersetzungen anwenden (falls vorhanden)
+                if (typeof setLanguage === 'function') {
+                    try {
+                        setLanguage(lang);
+                    } catch (e) {
+                        console.warn('Sprache nicht vollständig unterstützt:', lang);
+                    }
+                }
+
+                // Modal schließen nach kurzer Verzögerung
+                setTimeout(() => {
+                    langModal.classList.remove('active');
+                }, 200);
+                
+                console.log('✅ Sprache gewechselt zu:', lang);
+            });
+        });
+
+        // Ausgewählte Karte markieren
+        function updateSelectedCard() {
+            langCards.forEach(function(card) {
+                const lang = card.getAttribute('data-lang');
+                if (lang === currentLang) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+        }
+
+        console.log('✅ Neues Sprachsystem initialisiert');
+    })();
+    </script>
+
+    <!-- Profil & Login System -->
+    <script>
+    (function() {
+        // Prüfer-Daten (simuliert)
+        const prueferData = {
+            '007': { name: 'Max Mustermann', img: 'css/worker-profile.png' },
+            '123': { name: 'Anna Schmidt', img: 'css/worker-profile.png' },
+            '456': { name: 'Peter Müller', img: 'css/worker-profile.png' },
+            '789': { name: 'Lisa Weber', img: 'css/worker-profile.png' }
+        };
+
+        // State
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let currentPruefer = JSON.parse(localStorage.getItem('currentPruefer')) || null;
+        let loginTime = localStorage.getItem('loginTime') || null;
+
+        // Elemente
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+        const profileSection = document.getElementById('profileSection');
+        const profileModal = document.getElementById('profileModal');
+        const closeProfileModal = document.getElementById('closeProfileModal');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const cardScanInput = document.getElementById('cardScanInput');
+
+        // UI Update
+        function updateUI() {
+            if (isLoggedIn && currentPruefer) {
+                // Zeige App
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'flex';
+                
+                // Update Sidebar
+                document.getElementById('workerNumber').textContent = currentPruefer.number;
+                document.getElementById('profileImg').src = currentPruefer.img;
+                
+                // Update Modal
+                document.getElementById('profileModalNumber').textContent = currentPruefer.number;
+                document.getElementById('profileModalName').textContent = currentPruefer.name;
+                document.getElementById('profileModalImg').src = currentPruefer.img;
+                
+                if (loginTime) {
+                    const time = new Date(loginTime);
+                    document.getElementById('profileModalTime').textContent = 
+                        time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+                }
+            } else {
+                // Zeige Login
+                loginScreen.style.display = 'flex';
+                mainApp.style.display = 'none';
+                
+                // Focus auf Scanner-Input
+                setTimeout(() => {
+                    if (cardScanInput) cardScanInput.focus();
+                }, 100);
+            }
+        }
+
+        // Login
+        function login(prueferNr) {
+            const pruefer = prueferData[prueferNr];
+            if (pruefer) {
+                currentPruefer = {
+                    number: prueferNr,
+                    name: pruefer.name,
+                    img: pruefer.img
+                };
+                isLoggedIn = true;
+                loginTime = new Date().toISOString();
+                
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentPruefer', JSON.stringify(currentPruefer));
+                localStorage.setItem('loginTime', loginTime);
+                
+                updateUI();
+                console.log('✅ Angemeldet als:', currentPruefer.name);
+                
+                // Nach Login: Prüfe ob Stillstand ohne Grund vorliegt
+                checkPendingDowntime();
+            } else {
+                // Unbekannte Karte - trotzdem einloggen mit Standard-Daten
+                currentPruefer = {
+                    number: prueferNr,
+                    name: 'Prüfer ' + prueferNr,
+                    img: 'css/worker-profile.png'
+                };
+                isLoggedIn = true;
+                loginTime = new Date().toISOString();
+                
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentPruefer', JSON.stringify(currentPruefer));
+                localStorage.setItem('loginTime', loginTime);
+                
+                updateUI();
+                console.log('✅ Angemeldet als:', currentPruefer.name);
+                
+                // Nach Login: Prüfe ob Stillstand ohne Grund vorliegt
+                checkPendingDowntime();
+            }
+        }
+        
+        // Prüfe ob ein Stillstand ohne Grund vorliegt und zeige Modal
+        function checkPendingDowntime() {
+            // Kurze Verzögerung damit UI fertig geladen ist
+            setTimeout(function() {
+                if (typeof pendingDowntimeReason !== 'undefined' && pendingDowntimeReason === true) {
+                    // Zeige Downtime-Modal
+                    if (typeof showDowntimeModal === 'function') {
+                        showDowntimeModal();
+                        console.log('⚠️ Stillstand ohne Grund - Modal geöffnet');
+                    }
+                }
+            }, 500);
+        }
+
+        // Logout
+        function logout() {
+            isLoggedIn = false;
+            currentPruefer = null;
+            loginTime = null;
+            
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentPruefer');
+            localStorage.removeItem('loginTime');
+            
+            hideProfileModal();
+            updateUI();
+            console.log('👋 Abgemeldet');
+        }
+
+        // Profil Modal
+        function showProfileModal() {
+            profileModal.classList.add('active');
+        }
+
+        function hideProfileModal() {
+            profileModal.classList.remove('active');
+        }
+
+        // Event Listeners
+        if (profileSection) {
+            profileSection.addEventListener('click', showProfileModal);
+        }
+
+        if (closeProfileModal) {
+            closeProfileModal.addEventListener('click', hideProfileModal);
+        }
+
+        if (profileModal) {
+            profileModal.addEventListener('click', function(e) {
+                if (e.target === profileModal) {
+                    hideProfileModal();
+                }
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', logout);
+        }
+
+        // Karten-Scanner Input
+        if (cardScanInput) {
+            cardScanInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const cardNumber = cardScanInput.value.trim();
+                    if (cardNumber) {
+                        login(cardNumber);
+                        cardScanInput.value = '';
+                    }
+                }
+            });
+        }
+
+        // Leertaste zum Anmelden (im Login-Screen)
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && !isLoggedIn) {
+                e.preventDefault();
+                // Mit Standard-Prüfer anmelden
+                login('007');
+            }
+        });
+
+        // Initial UI Update
+        updateUI();
+
+        // Für Demo: Auto-Login wenn schon eingeloggt war
+        // Falls du immer den Login-Screen sehen willst, kommentiere die nächste Zeile aus
+        // oder lösche localStorage
+
+        console.log('✅ Profil & Login System initialisiert');
+    })();
+    </script>
+</body>
+</html>
