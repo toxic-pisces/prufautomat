@@ -133,6 +133,11 @@
             <button class="lang-btn" id="langBtn" title="Sprache wechseln">
                 <span id="langFlag">🇩🇪</span>
             </button>
+
+            <!-- Fullscreen Button -->
+            <button class="fullscreen-btn" id="fullscreenBtn" title="Vollbild">
+                <span class="fullscreen-icon">⛶</span>
+            </button>
         </div>
 
     <!-- Main Production View -->
@@ -1195,6 +1200,45 @@
         // oder lösche localStorage
 
         console.log('✅ Profil & Login System initialisiert');
+    })();
+    </script>
+
+    <!-- Fullscreen Functionality -->
+    <script>
+    (function() {
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                // Enter fullscreen
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error('Fullscreen error:', err);
+                });
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Update button icon when fullscreen state changes
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.querySelector('.fullscreen-icon');
+            if (icon) {
+                icon.textContent = document.fullscreenElement ? '⛶' : '⛶';
+            }
+        });
+
+        // Optional: Auto-fullscreen on load (for kiosk mode)
+        // Uncomment the next line if you want auto-fullscreen on page load
+        // window.addEventListener('load', () => { setTimeout(toggleFullscreen, 1000); });
+
+        console.log('✅ Fullscreen System initialisiert');
     })();
     </script>
 </body>

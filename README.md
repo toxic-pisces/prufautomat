@@ -6,10 +6,13 @@ Automatische Produktionsüberwachung mit DFQ-Datei-Verarbeitung und Echtzeit-Ord
 
 - ✅ **Automatische Ordnerüberwachung**: Server überwacht einen Ordner und verarbeitet neue DFQ-Dateien automatisch
 - ✅ **Echtzeit-Verarbeitung**: Neue Dateien werden sofort erkannt und ausgewertet
-- ✅ **Manueller Upload**: Optional können Dateien auch manuell hochgeladen werden
+- ✅ **Touch-Display Support**: Optimiert für Touch-Bedienung
+- ✅ **Kiosk-Modus**: Automatischer Fullscreen-Start für Produktionsumgebung
+- ✅ **Offline-Betrieb**: Läuft komplett lokal ohne Internetverbindung
 - ✅ **IO/NIO-Erkennung**: Automatische Toleranzprüfung aus K0001-Messwerten
 - ✅ **57 Merkmale**: Vollständige Unterstützung aller Messmerkmale
 - ✅ **Live-Dashboard**: Echtzeit-Anzeige von Produktionsdaten
+- ✅ **Multi-Language**: Unterstützung für DE, EN, RU, PL, ZH, IT
 
 ---
 
@@ -59,7 +62,23 @@ brew install node
 
 ## 🎯 Verwendung
 
-### 1. Server starten
+### Option A: Schnellstart mit Kiosk-Modus (Empfohlen für Touch-Display)
+
+**Für Offline-Betrieb mit automatischem Fullscreen:**
+
+```bash
+./start-offline.sh
+```
+
+Dieses Script:
+- Startet den Server automatisch
+- Öffnet die App im Fullscreen/Kiosk-Modus
+- Perfekt für Touch-Display-Betrieb
+- Keine manuelle Browser-Konfiguration nötig
+
+### Option B: Manueller Start
+
+#### 1. Server starten
 
 ```bash
 npm start
@@ -76,12 +95,17 @@ Du solltest folgende Ausgabe sehen:
 ⚠️  No folder configured. Set it in the web interface.
 ```
 
-### 2. Web-App öffnen
+#### 2. Web-App öffnen
 
 Öffne deinen Browser und navigiere zu:
 ```
 http://localhost:3000
 ```
+
+#### 3. Fullscreen aktivieren
+
+- Klicke auf den **Fullscreen-Button** (⛶) in der Sidebar
+- Oder drücke `F11` (Windows/Linux) bzw. `Cmd+Ctrl+F` (macOS)
 
 ### 3. Ordner konfigurieren
 
@@ -163,6 +187,43 @@ Nutzt `nodemon` für automatischen Server-Neustart bei Dateiänderungen.
 
 ---
 
+## 🖥️ Touch-Display Setup (macOS)
+
+### Touch funktioniert nicht?
+
+1. **Display-Modus prüfen**:
+   - Öffne Systemeinstellungen → Displays
+   - Deaktiviere "Bildschirme synchronisieren"
+   - Stelle Touch-Display als Hauptbildschirm ein
+
+2. **USB-Verbindung prüfen**:
+   - Touch-Funktion läuft über USB (nicht HDMI)
+   - USB-Kabel direkt am Mac anschließen (nicht über Hub)
+   - Ggf. andere USB-Ports testen
+
+3. **Treiber installieren**:
+   - Auf Website des Display-Herstellers nach macOS-Treibern suchen
+   - Treiber installieren und Mac neu starten
+
+### Automatischer Start beim Systemstart
+
+Um die App beim Hochfahren automatisch zu starten:
+
+1. Erstelle ein `.command` File:
+   ```bash
+   echo '#!/bin/bash
+   cd /pfad/zu/prufautmat1
+   ./start-offline.sh' > ~/Desktop/Prufautomat.command
+   chmod +x ~/Desktop/Prufautomat.command
+   ```
+
+2. Füge es zu "Anmeldeobjekte" hinzu:
+   - Systemeinstellungen → Benutzer & Gruppen
+   - Anmeldeobjekte → "+" klicken
+   - `Prufautomat.command` auswählen
+
+---
+
 ## 🐛 Problembehebung
 
 ### "Server verbunden" wird nicht angezeigt
@@ -192,6 +253,13 @@ Nutzt `nodemon` für automatischen Server-Neustart bei Dateiänderungen.
 - Das passiert wenn eine Datei während des Schreibens erkannt wird
 - Der Server wartet 2 Sekunden bis die Datei fertig geschrieben ist
 - Ignoriere Duplikate oder lösche/verschiebe Dateien nach Verarbeitung
+
+### Fullscreen funktioniert nicht
+
+**Lösung**:
+- Klicke auf den Fullscreen-Button (⛶) in der Sidebar
+- Oder verwende das Startup-Script: `./start-offline.sh`
+- Browser muss Fullscreen-Berechtigungen haben (beim ersten Mal bestätigen)
 
 ---
 
