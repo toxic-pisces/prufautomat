@@ -920,32 +920,56 @@ button:hover {
     color: #95a5a6;
 }
 
-/* Analysis Dashboard Modal */
+/* Analysis Dashboard Modal - Full screen, no header */
 .analysis-modal {
-    max-width: 90vw;
-    max-height: 90vh;
-    padding: 30px;
+    max-width: 95vw;
+    max-height: 95vh;
+    padding: 0;
+    background: transparent;
+    position: relative;
 }
 
 .analysis-image-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #1a252f;
-    border-radius: 10px;
-    padding: 20px;
-    max-height: 75vh;
-    overflow: auto;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    max-height: 95vh;
+    overflow: hidden;
 }
 
 .analysis-image {
     max-width: 100%;
-    max-height: 70vh;
+    max-height: 95vh;
     height: auto;
     width: auto;
     object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Close button overlay for analysis dashboard */
+.close-btn-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    font-size: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-btn-overlay:hover {
+    background: #c0392b;
+    transform: scale(1.1);
 }
 
 /* Configuration Modal */
@@ -1902,6 +1926,106 @@ button:hover {
     color: rgba(255, 255, 255, 0.9);
 }
 
+/* Filter Section */
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-filter {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.active-filter-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: #27ae60;
+    border-radius: 8px;
+    color: white;
+}
+
+.filter-text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-clear-filter {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-clear-filter:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Filter Modal */
+.filter-modal {
+    max-width: 600px;
+    width: 90%;
+}
+
+.filter-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.btn-filter-option {
+    padding: 20px;
+    background: #1a252f;
+    border: 3px solid #34495e;
+    border-radius: 10px;
+    color: #ecf0f1;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-filter-option:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    border-color: #3498db;
+}
+
+.btn-filter-option:active {
+    transform: translateY(0);
+}
+
 /* No Test View - Start Button */
 .no-test-view {
     display: flex;
@@ -2386,20 +2510,20 @@ button:hover {
    ================================================ */
 
 .profile-modal {
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
 }
 
 .profile-modal-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 30px;
+    align-items: start;
 }
 
 .profile-modal-picture {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     overflow: hidden;
     border: 4px solid #3498db;
@@ -2413,49 +2537,57 @@ button:hover {
 }
 
 .profile-modal-info {
-    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+}
+
+.profile-title {
+    font-size: 20px;
+    color: #3498db;
+    margin: 0 0 8px 0;
+    font-weight: 600;
 }
 
 .profile-info-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 15px;
     align-items: center;
-    padding: 12px 15px;
+    padding: 10px 12px;
     background: #1a252f;
     border-radius: 8px;
 }
 
 .profile-label {
     color: #95a5a6;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
 .profile-value {
     color: #ecf0f1;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
 }
 
 .btn-logout {
     width: 100%;
-    padding: 15px;
+    padding: 12px;
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 18px;
+    border-radius: 8px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.3s ease;
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 .btn-logout:hover {

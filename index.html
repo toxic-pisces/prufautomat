@@ -368,6 +368,17 @@
                     </div>
                 </div>
 
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <button class="btn-filter" id="filterBtn">
+                        <span>🔍</span> Nach Teilen filtern
+                    </button>
+                    <div class="active-filter-display" id="activeFilterDisplay" style="display: none;">
+                        <span class="filter-text" id="filterText"></span>
+                        <button class="btn-clear-filter" id="clearFilterBtn">&times;</button>
+                    </div>
+                </div>
+
                 <!-- Orders Grid -->
                 <div class="orders-grid" id="ordersGrid">
                     <!-- Order cards will be dynamically populated -->
@@ -381,18 +392,44 @@
         </div>
     </div>
 
+    <!-- Filter Modal - Step 1: Teilename -->
+    <div id="filterTeileModal" class="modal">
+        <div class="modal-content filter-modal">
+            <div class="modal-header">
+                <h2>Teilename auswählen</h2>
+                <button class="close-btn" id="closeFilterTeileModal">&times;</button>
+            </div>
+            <div class="filter-buttons-grid" id="teileGrid">
+                <button class="btn-filter-option" data-teil="Housing">Housing</button>
+                <button class="btn-filter-option" data-teil="Ventil">Ventil</button>
+                <button class="btn-filter-option" data-teil="Kolben">Kolben</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Modal - Step 2: Nummer -->
+    <div id="filterNummerModal" class="modal">
+        <div class="modal-content filter-modal">
+            <div class="modal-header">
+                <h2 id="filterNummerTitle">Nummer auswählen</h2>
+                <button class="close-btn" id="closeFilterNummerModal">&times;</button>
+            </div>
+            <div class="filter-buttons-grid" id="nummerGrid">
+                <!-- Will be populated dynamically based on Teil selection -->
+            </div>
+        </div>
+    </div>
+
     <!-- Profil Modal (NEU) -->
     <div id="profileModal" class="modal">
         <div class="modal-content profile-modal">
-            <div class="modal-header">
-                <h2>👤 Prüferprofil</h2>
-                <button class="close-btn" id="closeProfileModal">&times;</button>
-            </div>
+            <button class="close-btn" id="closeProfileModal">&times;</button>
             <div class="profile-modal-content">
                 <div class="profile-modal-picture">
                     <img src="css/worker-profile.png" alt="Prüfer" id="profileModalImg">
                 </div>
                 <div class="profile-modal-info">
+                    <h3 class="profile-title">👤 Prüferprofil</h3>
                     <div class="profile-info-item">
                         <span class="profile-label">Prüfernummer</span>
                         <span class="profile-value" id="profileModalNumber">007</span>
@@ -405,10 +442,10 @@
                         <span class="profile-label">Angemeldet seit</span>
                         <span class="profile-value" id="profileModalTime">--:--</span>
                     </div>
+                    <button class="btn-logout" id="logoutBtn">
+                        <span>🚪</span> Abmelden
+                    </button>
                 </div>
-                <button class="btn-logout" id="logoutBtn">
-                    <span>🚪</span> Abmelden
-                </button>
             </div>
         </div>
     </div>
@@ -725,10 +762,7 @@
     <!-- Analysis Dashboard Modal -->
     <div id="analysisModal" class="modal">
         <div class="modal-content analysis-modal">
-            <div class="modal-header">
-                <h2>Analysis Dashboard</h2>
-                <button class="close-btn" id="closeAnalysisModal">&times;</button>
-            </div>
+            <button class="close-btn close-btn-overlay" id="closeAnalysisModal">&times;</button>
             <div class="analysis-image-container">
                 <img src="css/analysis-dashboard.png" alt="Analysis Dashboard" class="analysis-image">
             </div>
@@ -1250,6 +1284,142 @@
         }
 
         console.log('✅ Fullscreen System initialisiert (Logo 5x Klick)');
+    })();
+    </script>
+
+    <!-- Filter System for Aufträge -->
+    <script>
+    (function() {
+        // Elements
+        const filterBtn = document.getElementById('filterBtn');
+        const clearFilterBtn = document.getElementById('clearFilterBtn');
+        const activeFilterDisplay = document.getElementById('activeFilterDisplay');
+        const filterText = document.getElementById('filterText');
+
+        const filterTeileModal = document.getElementById('filterTeileModal');
+        const closeFilterTeileModal = document.getElementById('closeFilterTeileModal');
+        const teileGrid = document.getElementById('teileGrid');
+
+        const filterNummerModal = document.getElementById('filterNummerModal');
+        const closeFilterNummerModal = document.getElementById('closeFilterNummerModal');
+        const filterNummerTitle = document.getElementById('filterNummerTitle');
+        const nummerGrid = document.getElementById('nummerGrid');
+
+        // Demo data: Teil -> Nummern mapping
+        const teilNummernMap = {
+            'Housing': ['1234', '1567', '1890', '2345', '2678', '2901'],
+            'Ventil': ['3456', '3789', '4012', '4345', '4678'],
+            'Kolben': ['5678', '5901', '6234', '6567', '6890', '7123', '7456']
+        };
+
+        let selectedTeil = null;
+        let selectedNummer = null;
+        let currentFilter = null;
+
+        // Open Step 1: Teilename selection
+        if (filterBtn) {
+            filterBtn.addEventListener('click', function() {
+                filterTeileModal.classList.add('active');
+            });
+        }
+
+        // Close Teil modal
+        if (closeFilterTeileModal) {
+            closeFilterTeileModal.addEventListener('click', function() {
+                filterTeileModal.classList.remove('active');
+            });
+        }
+
+        // Teil selection
+        if (teileGrid) {
+            teileGrid.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-filter-option');
+                if (!btn) return;
+
+                selectedTeil = btn.getAttribute('data-teil');
+                filterTeileModal.classList.remove('active');
+
+                // Open Step 2: Nummer selection
+                filterNummerTitle.textContent = selectedTeil + ' - Nummer auswählen';
+                populateNummerGrid(selectedTeil);
+                filterNummerModal.classList.add('active');
+            });
+        }
+
+        // Close Nummer modal
+        if (closeFilterNummerModal) {
+            closeFilterNummerModal.addEventListener('click', function() {
+                filterNummerModal.classList.remove('active');
+                selectedTeil = null;
+            });
+        }
+
+        // Nummer selection
+        if (nummerGrid) {
+            nummerGrid.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-filter-option');
+                if (!btn) return;
+
+                selectedNummer = btn.getAttribute('data-nummer');
+                filterNummerModal.classList.remove('active');
+
+                // Apply filter
+                applyFilter(selectedTeil, selectedNummer);
+            });
+        }
+
+        // Populate Nummer grid based on Teil
+        function populateNummerGrid(teil) {
+            const nummern = teilNummernMap[teil] || [];
+            nummerGrid.innerHTML = '';
+
+            nummern.forEach(nummer => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-filter-option';
+                btn.setAttribute('data-nummer', nummer);
+                btn.textContent = nummer;
+                nummerGrid.appendChild(btn);
+            });
+        }
+
+        // Apply filter and show active filter display
+        function applyFilter(teil, nummer) {
+            currentFilter = { teil, nummer };
+            filterText.textContent = `${teil} - ${nummer}`;
+            activeFilterDisplay.style.display = 'flex';
+            filterBtn.style.display = 'none';
+
+            console.log('🔍 Filter angewendet:', currentFilter);
+            // TODO: Filter the orders grid here
+        }
+
+        // Clear filter
+        if (clearFilterBtn) {
+            clearFilterBtn.addEventListener('click', function() {
+                currentFilter = null;
+                selectedTeil = null;
+                selectedNummer = null;
+                activeFilterDisplay.style.display = 'none';
+                filterBtn.style.display = 'flex';
+
+                console.log('🔍 Filter entfernt');
+                // TODO: Show all orders again
+            });
+        }
+
+        // Close modals on outside click
+        window.addEventListener('click', function(e) {
+            if (e.target === filterTeileModal) {
+                filterTeileModal.classList.remove('active');
+                selectedTeil = null;
+            }
+            if (e.target === filterNummerModal) {
+                filterNummerModal.classList.remove('active');
+                selectedTeil = null;
+            }
+        });
+
+        console.log('✅ Filter System initialisiert');
     })();
     </script>
 </body>
