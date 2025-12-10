@@ -15,9 +15,9 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
     flex-shrink: 0;
     height: 100vh;
     background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
@@ -25,7 +25,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 20px 0;
-    gap: 24px;
+    gap: 28px;
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
     z-index: 100;
     overflow: hidden;
@@ -49,12 +49,12 @@ body {
 }
 
 .profile-picture {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    min-height: 60px;
-    max-width: 60px;
-    max-height: 60px;
+    width: 75px;
+    height: 75px;
+    min-width: 75px;
+    min-height: 75px;
+    max-width: 75px;
+    max-height: 75px;
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid #3498db;
@@ -75,7 +75,7 @@ body {
 }
 
 .worker-number {
-    font-size: 16px;
+    font-size: 19px;
     font-weight: 700;
     color: #3498db;
     letter-spacing: 1px;
@@ -84,13 +84,13 @@ body {
 
 /* Analysis Button */
 .analysis-btn {
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
     color: white;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(39, 174, 96, 0.4);
     transition: all 0.3s ease;
@@ -116,13 +116,13 @@ body {
 
 /* Configuration Button */
 .config-btn {
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
     color: white;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(230, 126, 34, 0.4);
     transition: all 0.3s ease;
@@ -153,7 +153,7 @@ body {
     height: 100vh;
     flex: 1;
     min-width: 0;
-    width: calc(100vw - 100px);
+    width: calc(100vw - 120px);
     padding: 25px 40px;
     gap: 20px;
     overflow: hidden;
@@ -1780,13 +1780,13 @@ button:hover {
 
 /* Aufträge Button */
 .auftraege-btn {
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
     color: white;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(155, 89, 182, 0.4);
     transition: all 0.3s ease;
@@ -2106,13 +2106,13 @@ button:hover {
 
 /* Language Button (NEU) */
 .lang-btn {
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
     border: none;
-    font-size: 28px;
+    font-size: 34px;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
     transition: all 0.3s ease;
@@ -2551,19 +2551,20 @@ button:hover {
 
     /* Workflow Modal (Prüfzyklus/Zweck) */
     .workflow-modal {
-        max-width: 1000px;
+        max-width: 1200px !important;
+        padding: 60px !important;
     }
 
     .btn-pruefzyklus {
-        padding: 40px;
-        font-size: 42px;
-        min-height: 120px;
+        padding: 50px;
+        font-size: 48px;
+        min-height: 140px;
     }
 
     .btn-pruefzweck {
-        padding: 40px;
-        font-size: 24px;
-        min-height: 120px;
+        padding: 50px;
+        font-size: 28px;
+        min-height: 140px;
     }
 
     /* Downtime Modal */
@@ -2654,20 +2655,27 @@ button:hover {
 
     /* TBK Print Modal */
     .tbk-print-info {
-        font-size: 20px;
+        font-size: 22px;
+        padding: 30px;
     }
 
     .print-count-label {
-        font-size: 24px;
+        font-size: 28px;
     }
 
     .print-count-value {
-        font-size: 56px;
+        font-size: 72px;
+        min-width: 120px;
     }
 
     .btn-count {
-        padding: 20px 30px;
-        font-size: 28px;
+        width: 80px;
+        height: 80px;
+        font-size: 36px;
+    }
+
+    .print-count-limit {
+        font-size: 20px;
     }
 
     /* Primary Buttons */
@@ -2730,19 +2738,20 @@ button:hover {
     }
 
     .workflow-modal {
-        max-width: 1400px;
+        max-width: 1600px !important;
+        padding: 80px !important;
     }
 
     .btn-pruefzyklus {
-        padding: 50px;
-        font-size: 56px;
-        min-height: 150px;
+        padding: 60px;
+        font-size: 64px;
+        min-height: 170px;
     }
 
     .btn-pruefzweck {
-        padding: 50px;
-        font-size: 32px;
-        min-height: 150px;
+        padding: 60px;
+        font-size: 36px;
+        min-height: 170px;
     }
 
     .downtime-grid {
@@ -2781,6 +2790,31 @@ button:hover {
 
     .container-scan-modal {
         max-width: 1800px;
+    }
+
+    /* TBK Print Modal */
+    .tbk-print-info {
+        font-size: 26px;
+        padding: 40px;
+    }
+
+    .print-count-label {
+        font-size: 34px;
+    }
+
+    .print-count-value {
+        font-size: 90px;
+        min-width: 160px;
+    }
+
+    .btn-count {
+        width: 100px;
+        height: 100px;
+        font-size: 44px;
+    }
+
+    .print-count-limit {
+        font-size: 24px;
     }
 
     .btn-primary {
