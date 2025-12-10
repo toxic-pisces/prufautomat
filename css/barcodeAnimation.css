@@ -945,11 +945,168 @@
         width: 100% !important;
         margin: 20px;
     }
-    
+
     .tbk-scan-modal,
     .container-scan-modal,
     .machine-loading-modal {
         width: 95% !important;
         padding: 20px !important;
+    }
+}
+
+/* ============================================
+   LARGE SCREENS - Better scaling for videos and modals
+   ============================================ */
+
+@media (min-width: 1200px) {
+    .tbk-scan-modal {
+        max-width: 1000px !important;
+        padding: 50px !important;
+    }
+
+    .scan-modal-title {
+        font-size: 42px !important;
+        margin-bottom: 40px !important;
+    }
+
+    .scan-video-large {
+        max-width: 800px;
+    }
+
+    .success-checkmark {
+        font-size: 120px;
+    }
+
+    .success-message {
+        font-size: 32px;
+    }
+
+    .container-scan-modal {
+        max-width: 1400px !important;
+        padding: 50px !important;
+    }
+
+    .container-scan-layout {
+        gap: 50px;
+        min-height: 600px;
+    }
+
+    .container-section-title {
+        font-size: 32px !important;
+    }
+
+    .container-list-area {
+        min-height: 400px;
+    }
+
+    .container-counter-area {
+        font-size: 24px;
+        padding: 20px 30px;
+    }
+
+    .container-counter-area .counter-value {
+        font-size: 36px;
+    }
+
+    .container-scan-video {
+        max-width: 650px;
+    }
+
+    .machine-loading-modal {
+        max-width: 1100px !important;
+        padding: 60px !important;
+    }
+
+    .machine-loading-title {
+        font-size: 42px !important;
+    }
+
+    .machine-loading-video {
+        max-width: 900px;
+    }
+
+    .machine-confirm-btn {
+        max-width: 600px;
+        padding: 25px 50px;
+        font-size: 26px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .tbk-scan-modal {
+        max-width: 1400px !important;
+        padding: 70px !important;
+    }
+
+    .scan-modal-title {
+        font-size: 52px !important;
+        margin-bottom: 50px !important;
+    }
+
+    .scan-video-large {
+        max-width: 1100px;
+    }
+
+    .success-checkmark {
+        font-size: 160px;
+    }
+
+    .success-message {
+        font-size: 42px;
+    }
+
+    .container-scan-modal {
+        max-width: 1800px !important;
+        padding: 70px !important;
+    }
+
+    .container-scan-layout {
+        gap: 70px;
+        min-height: 750px;
+    }
+
+    .container-section-title {
+        font-size: 42px !important;
+    }
+
+    .container-list-area {
+        min-height: 500px;
+    }
+
+    .container-counter-area {
+        font-size: 32px;
+        padding: 25px 40px;
+    }
+
+    .container-counter-area .counter-value {
+        font-size: 48px;
+    }
+
+    .container-submit-btn {
+        padding: 22px 40px;
+        font-size: 26px;
+    }
+
+    .container-scan-video {
+        max-width: 850px;
+    }
+
+    .machine-loading-modal {
+        max-width: 1500px !important;
+        padding: 80px !important;
+    }
+
+    .machine-loading-title {
+        font-size: 52px !important;
+    }
+
+    .machine-loading-video {
+        max-width: 1200px;
+    }
+
+    .machine-confirm-btn {
+        max-width: 750px;
+        padding: 30px 60px;
+        font-size: 32px;
     }
 }
