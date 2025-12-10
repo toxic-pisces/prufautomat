@@ -88,24 +88,24 @@
 
 /* Consistent modal sizing for all workflow modals */
 .modal-content.workflow-modal {
-    max-width: 500px !important;
-    width: 90% !important;
-    padding: 22px 28px !important;
+    max-width: 650px !important;
+    width: 92% !important;
+    padding: 35px 45px !important;
 }
 
 /* Standardize all h2 headings in workflow modals */
 .modal-content.workflow-modal h2 {
-    font-size: 20px !important;
-    margin-bottom: 12px !important;
+    font-size: 28px !important;
+    margin-bottom: 20px !important;
     text-align: center !important;
     color: #3498db !important;
 }
 
 /* Standardize all paragraphs in workflow modals */
 .modal-content.workflow-modal p {
-    font-size: 14px !important;
+    font-size: 18px !important;
     line-height: 1.5 !important;
-    margin: 10px 0 !important;
+    margin: 15px 0 !important;
     text-align: center !important;
     color: #bdc3c7 !important;
 }
@@ -113,9 +113,9 @@
 /* Standardize all buttons in workflow modals */
 .modal-content.workflow-modal button.btn-primary {
     width: 100% !important;
-    font-size: 15px !important;
-    padding: 12px 20px !important;
-    margin-top: 15px !important;
+    font-size: 20px !important;
+    padding: 18px 30px !important;
+    margin-top: 25px !important;
 }
 
 /* Grid layout for modal content */
