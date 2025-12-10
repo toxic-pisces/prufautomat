@@ -104,8 +104,10 @@ http://localhost:3000
 
 #### 3. Fullscreen aktivieren
 
-- Klicke auf den **Fullscreen-Button** (⛶) in der Sidebar
-- Oder drücke `F11` (Windows/Linux) bzw. `Cmd+Ctrl+F` (macOS)
+- Klicke **5x schnell** auf das **Logo** im Header (oben rechts)
+- Das Logo blinkt bei jedem Klick
+- Nach 5 Klicks wird Fullscreen aktiviert
+- Im Fullscreen: Erneut 5x auf Logo klicken zum Beenden
 
 ### 3. Ordner konfigurieren
 
@@ -257,9 +259,17 @@ Um die App beim Hochfahren automatisch zu starten:
 ### Fullscreen funktioniert nicht
 
 **Lösung**:
-- Klicke auf den Fullscreen-Button (⛶) in der Sidebar
+- Klicke 5x schnell auf das Logo im Header (oben rechts)
+- Das Logo sollte bei jedem Klick kurz blinken
 - Oder verwende das Startup-Script: `./start-offline.sh`
 - Browser muss Fullscreen-Berechtigungen haben (beim ersten Mal bestätigen)
+
+### Wie komme ich aus dem Fullscreen/Kiosk-Modus raus?
+
+**Lösung**:
+- Klicke erneut 5x schnell auf das Logo
+- Oder drücke `ESC` (funktioniert nur bei normalem Fullscreen, nicht bei Chrome Kiosk-Modus)
+- Oder drücke `Cmd+Q` um Browser komplett zu schließen (macOS)
 
 ---
 

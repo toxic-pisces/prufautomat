@@ -133,11 +133,6 @@
             <button class="lang-btn" id="langBtn" title="Sprache wechseln">
                 <span id="langFlag">🇩🇪</span>
             </button>
-
-            <!-- Fullscreen Button -->
-            <button class="fullscreen-btn" id="fullscreenBtn" title="Vollbild">
-                <span class="fullscreen-icon">⛶</span>
-            </button>
         </div>
 
     <!-- Main Production View -->
@@ -1203,14 +1198,12 @@
     })();
     </script>
 
-    <!-- Fullscreen Functionality -->
+    <!-- Fullscreen Functionality - Logo Click -->
     <script>
     (function() {
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-
-        if (fullscreenBtn) {
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-        }
+        const logo = document.querySelector('.header .logo');
+        let clickCount = 0;
+        let clickTimer = null;
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
@@ -1226,19 +1219,37 @@
             }
         }
 
-        // Update button icon when fullscreen state changes
-        document.addEventListener('fullscreenchange', () => {
-            const icon = document.querySelector('.fullscreen-icon');
-            if (icon) {
-                icon.textContent = document.fullscreenElement ? '⛶' : '⛶';
-            }
-        });
+        // Logo click handler
+        if (logo) {
+            logo.style.cursor = 'pointer';
 
-        // Optional: Auto-fullscreen on load (for kiosk mode)
-        // Uncomment the next line if you want auto-fullscreen on page load
-        // window.addEventListener('load', () => { setTimeout(toggleFullscreen, 1000); });
+            logo.addEventListener('click', function() {
+                clickCount++;
 
-        console.log('✅ Fullscreen System initialisiert');
+                // Visual feedback - kurzes Blinken
+                logo.style.opacity = '0.5';
+                setTimeout(() => { logo.style.opacity = '1'; }, 100);
+
+                // Reset timer bei jedem Klick
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
+
+                // Prüfe ob 5 Klicks erreicht
+                if (clickCount >= 5) {
+                    toggleFullscreen();
+                    clickCount = 0;
+                    console.log('🖥️ Fullscreen toggled via logo click');
+                } else {
+                    // Setze Timer für Reset nach 2 Sekunden
+                    clickTimer = setTimeout(() => {
+                        clickCount = 0;
+                    }, 2000);
+                }
+            });
+        }
+
+        console.log('✅ Fullscreen System initialisiert (Logo 5x Klick)');
     })();
     </script>
 </body>
